@@ -1,13 +1,17 @@
 name: Update ETH Price
 
+permissions:
+  contents: write # ✅ 푸시 권한 부여 (핵심)
+
 on:
   schedule:
     - cron: "*/5 * * * *" # 매 5분마다 실행
-  workflow_dispatch:
+  workflow_dispatch: # 수동 실행도 가능
 
 jobs:
   update:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v3
 
@@ -27,5 +31,7 @@ jobs:
           git config --global user.name "junhyeok-bot"
           git config --global user.email "junhyeok@example.com"
           git add eth_price.*
-          git commit -m "Auto update ETH price"
-          git push
+          git commit -m "Auto update ETH price" || echo "Nothing to commit"
+          git push origin HEAD:${GITHUB_REF#refs/heads/}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
